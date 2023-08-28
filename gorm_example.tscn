@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://cyik654ctdgwo"]
+
+[node name="GORM_EXAMPLE" type="Node"]
+
+[node name="GORM" type="Node" parent="."]
+
+[node name="PostgreSQL" type="Node" parent="GORM"]
+
+[node name="JSON" type="Node" parent="GORM"]
+
+[node name="MongoDB" type="Node" parent="GORM"]
