@@ -12,8 +12,9 @@
 
 ```
 
-### MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)
+### (WIP) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
+** Disclaimer, this one is a WIP and not done yet.
 - Base URL:
 ![image](https://github.com/grimmtotal/GORM/assets/83027121/315390e3-f9e5-4abc-bd4a-0287748c6a71)
 
