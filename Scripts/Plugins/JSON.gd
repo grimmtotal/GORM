@@ -57,7 +57,7 @@ func Create(collection, document, generate_defaults=true):
 	
 	if generate_defaults:
 		var collection_defaults = collection_templates[collection]
-		collection_data[str(seed)] = MatchDefault(collection_defaults, collection_data[str(seed)], false)
+		collection_data[str(seed)] = MatchDefault(collection_defaults, collection_data[str(seed)])
 
 	
 	collection_file.seek(0)
@@ -67,7 +67,7 @@ func Create(collection, document, generate_defaults=true):
 
 
 
-func Read(collection, filter={}):
+func Read(collection, filter={}, generate_defaults=true):
 	var collection_path = _build_collection_path(collection)
 	
 	var collection_exists = FileAccess.file_exists(collection_path)
@@ -81,8 +81,17 @@ func Read(collection, filter={}):
 	if collection_items == null:
 		collection_items = {}
 	
+	var filtered_items = _filter(collection_items, filter)
+	
+	if generate_defaults:
+		var collection_defaults = collection_templates[collection]
+		for item in len(filtered_items):
+			var id = filtered_items[item].id
+			filtered_items[item] = MatchDefault(collection_defaults, filtered_items[item])
+			filtered_items[item].id = id
+	
 	collection_file.close()
-	return _filter(collection_items, filter)
+	return filtered_items
 
 
 func Update(collection, changed_values, filter={}, generate_defaults=true):
@@ -104,7 +113,6 @@ func Update(collection, changed_values, filter={}, generate_defaults=true):
 			continue
 		
 		if _filter_match(collection_items[document_id], filter):
-			updated_items.append(collection_items[document_id])
 			
 			if "id" in changed_values:
 				changed_values.erase("id")
@@ -114,7 +122,9 @@ func Update(collection, changed_values, filter={}, generate_defaults=true):
 			
 			if generate_defaults:
 				var collection_defaults = collection_templates[collection]
-				collection_items[document_id] = MatchDefault(collection_defaults, collection_items[document_id], false)
+				collection_items[document_id] = MatchDefault(collection_defaults, collection_items[document_id])
+			
+			updated_items.append(collection_items[document_id])
 	
 	collection_file.seek(0)
 	collection_file.store_var(collection_items, true)
@@ -235,7 +245,7 @@ func merge_dicts(dict1, dict2):
 			result[key] = dict2[key]
 	return result
 
-func MatchDefault(default_data, loaded_data, strict=false):
+func MatchDefault(default_data, loaded_data, strict=true):
 	loaded_data = loaded_data.duplicate(true)
 	var l_data = loaded_data.duplicate(true)
 	
@@ -248,6 +258,9 @@ func MatchDefault(default_data, loaded_data, strict=false):
 	if strict:
 		for data in loaded_data:
 			if not data in default_data:
+				if data == "id":
+					continue
+				
 				l_data.erase(data)
 				
 	return l_data

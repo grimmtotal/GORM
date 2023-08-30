@@ -1,5 +1,6 @@
 extends Node
 
+var api_key = "5YaRinCTMwbOhOiTAsYSYsJEmDZ3qFCuarWlNdueSa7ns7oeWI2VufwfIzQMqpAA"
 
 var _config = {}
 @onready var _plugin = $MongoDBAtlas
@@ -19,8 +20,8 @@ func DeleteCollection(collection):
 func Create(collection, document, generate_defaults=true):
 	return _plugin.Create(collection, document, generate_defaults)
 
-func Read(collection, filter={}):
-	return _plugin.Read(collection, filter)
+func Read(collection, filter={}, generate_defaults=true):
+	return _plugin.Read(collection, filter, generate_defaults)
 
 func Update(collection, changed_values, filter={}, generate_defaults=true):
 	return _plugin.Update(collection, changed_values, filter, generate_defaults)

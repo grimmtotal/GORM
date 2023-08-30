@@ -6,12 +6,15 @@ func _ready():
 	$GORM.Configure($GORM/GrimmJSON, {}, {
 		"ExampleCollection":{
 			"example_default_value":0,
-			"example_default_string":"example_string",
+			"example_strict": 1,
 		}
 	})
 	
-	$GORM.UpdateOrCreate("ExampleCollection", {
-		"example_default_value":1
-	}, {"id":0} )
+	print($GORM.UpdateOrCreate("ExampleCollection", {
+		"example_default_value":13,
+		"example_strict": 2,
+		"strict":234,
+	}, {"id":0} ))
+	
 	
 	print($GORM.Read("ExampleCollection"))
