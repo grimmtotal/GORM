@@ -1,5 +1,6 @@
+# Godot4.0 ORM
 
-## GrimmJSON Plugin (Local data management, good for local save systems)
+### GrimmJSON Plugin (Local data management, good for local save systems)
 - Configuration: 
 ```go
 
@@ -11,8 +12,8 @@
 
 ```
 
-## MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)
-
+### MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)
+** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 - Base URL:
 ![image](https://github.com/grimmtotal/GORM/assets/83027121/673ec14a-2c07-42b3-af8b-ec1cbac09127)
 
