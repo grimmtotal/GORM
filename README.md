@@ -15,10 +15,11 @@
 ### MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 - Base URL:
-![image](https://github.com/grimmtotal/GORM/assets/83027121/673ec14a-2c07-42b3-af8b-ec1cbac09127)
+![image](https://github.com/grimmtotal/GORM/assets/83027121/315390e3-f9e5-4abc-bd4a-0287748c6a71)
+
 
 - Data Source:
-![image](https://github.com/grimmtotal/GORM/assets/83027121/9ccf28df-e7e1-4d12-aa9b-90d8a31e3d58)
+![image](https://github.com/grimmtotal/GORM/assets/83027121/e608447e-5e22-4dec-8fe3-f82146453991)
 
 
 - Configuration: 
