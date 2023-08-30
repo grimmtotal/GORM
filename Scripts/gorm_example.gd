@@ -10,11 +10,11 @@ func _ready():
 		}
 	})
 	
-	print($GORM.UpdateOrCreate("ExampleCollection", {
-		"example_default_value":13,
-		"example_strict": 2,
-		"strict":234,
-	}, {"id":0} ))
+#	print($GORM.UpdateOrCreate("ExampleCollection", {
+#		"example_default_value":13,
+#		"example_strict": 2,
+#		"strict":234,
+#	}, {"id":0} ))
+#
 	
-	
-	print($GORM.Read("ExampleCollection"))
+#	print($GORM.Read("ExampleCollection"))

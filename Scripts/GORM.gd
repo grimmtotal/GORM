@@ -1,6 +1,5 @@
 extends Node
 
-var api_key = "5YaRinCTMwbOhOiTAsYSYsJEmDZ3qFCuarWlNdueSa7ns7oeWI2VufwfIzQMqpAA"
 
 var _config = {}
 @onready var _plugin = $MongoDBAtlas
