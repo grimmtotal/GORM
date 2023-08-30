@@ -17,6 +17,9 @@ func DeleteCollection(collection):
 	return _plugin.DeleteCollection(collection)
 
 func Create(collection, document, generate_defaults=true):
+	if _plugin == $MongoDBAtlas:
+		return await _plugin.Create(collection, document, generate_defaults)
+		
 	return _plugin.Create(collection, document, generate_defaults)
 
 func Read(collection, filter={}, generate_defaults=true):

@@ -30,18 +30,23 @@ func DeleteCollection(collection):
 
 func Create(collection, document, generate_defaults=true):
 	var body = GenerateBody(collection)
+	body = JSON.parse_string(body)
 	body.erase("filter")
 	
-	if generate_defaults:
+	
+	if generate_defaults and collection in collection_templates:
 		var collection_defaults = collection_templates[collection]
 		body["document"] = MatchDefault(collection_defaults, body["document"])
 	else:
 		body["document"] = document
 	
+	body = JSON.stringify(body)
+	
 	var headers = GenerateHeaders()
 	
 	var response = client.request(_config.base_url + "/action/insertOne", headers, HTTPClient.METHOD_POST, body)
 	
+	body = JSON.parse_string(body)
 	await client.request_completed
 	
 	if response != OK:
