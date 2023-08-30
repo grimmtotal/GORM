@@ -20,6 +20,9 @@ func Create(collection, document, generate_defaults=true):
 	return _plugin.Create(collection, document, generate_defaults)
 
 func Read(collection, filter={}, generate_defaults=true):
+	if _plugin == $MongoDBAtlas:
+		return await _plugin.Read(collection, filter, generate_defaults)
+	
 	return _plugin.Read(collection, filter, generate_defaults)
 
 func Update(collection, changed_values, filter={}, generate_defaults=true):

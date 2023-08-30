@@ -9,7 +9,7 @@ var config = {}
 
 func Configure(configuration, templates):
 	collection_templates = templates
-	config = configuration
+	config = merge_dicts(configuration, config)
 	_GenerateTemplates()
 
 func DeleteCollection(collection):
@@ -246,6 +246,10 @@ func merge_dicts(dict1, dict2):
 	return result
 
 func MatchDefault(default_data, loaded_data, strict=true):
+	
+	if "strict_templates" in config:
+		strict = config.strict_templates
+	
 	loaded_data = loaded_data.duplicate(true)
 	var l_data = loaded_data.duplicate(true)
 	
