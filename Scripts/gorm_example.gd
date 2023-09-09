@@ -14,11 +14,12 @@ func _ready():
 			"example_strict": 1,
 		}
 	})
-
-	print(await $GORM.Create("Addresses", {
-		"example_default_value":13,
-		"example_strict": 2,
-		"strict":235,
-	}))
 	
-	print(await $GORM.Read("Worlds", {"_id":""}))
+#
+#	print(await $GORM.Create("Addresses", {
+#		"example_default_value":13,
+#		"example_strict": 2,
+#		"strict":235,
+#	}))
+#
+#	print(await $GORM.Read("Worlds", {"_id":""}))
