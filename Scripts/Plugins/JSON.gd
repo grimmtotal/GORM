@@ -2,7 +2,7 @@ extends Node
 
 var prefix = "user://"
 var data_folder_name = "data"
-var ext = ".gormcollection"
+var ext = ".grcollection"
 
 var collection_templates = {}
 var config = {}
@@ -30,7 +30,7 @@ func CreateCollection(collection):
 		dir.make_dir_recursive(data_folder_name)
 		var collection_file = FileAccess.open(collection_path, FileAccess.WRITE)
 		collection_file.seek(0)
-		collection_file.store_var({'_metadata':{'seed':0}}, true)
+		collection_file.store_var({'_metadata':{'_seed':0}}, true)
 	
 	return collection
 
@@ -45,25 +45,27 @@ func Create(collection, document, generate_defaults=true):
 	var collection_file = FileAccess.open(collection_path, FileAccess.READ_WRITE)
 	var collection_data = collection_file.get_var(true)
 	if collection_data == null:
-		collection_data = {"_metadata": {"seed": 0}}
+		collection_data = {"_metadata": {"_seed": 0}}
 	
 	var collection_items = collection_data.duplicate()
 	collection_items.erase("_metadata")
-	var seed = collection_data["_metadata"]["seed"]
+	var _seed = collection_data["_metadata"]["_seed"]
 	
-	document["id"] = seed
-	collection_data[str(seed)] = document
-	collection_data["_metadata"]["seed"] = seed + 1
+	document["id"] = _seed
+	collection_data[str(_seed)] = document
+	collection_data["_metadata"]["_seed"] = _seed + 1
 	
 	if generate_defaults:
 		var collection_defaults = collection_templates[collection]
-		collection_data[str(seed)] = MatchDefault(collection_defaults, collection_data[str(seed)])
-
+		collection_data[str(_seed)] = MatchDefault(collection_defaults, collection_data[str(_seed)])
+		
+	collection_data[str(_seed)]["created"] = Time.get_unix_time_from_system()
+	collection_data[str(_seed)]["updated"] = Time.get_unix_time_from_system()
 	
 	collection_file.seek(0)
 	collection_file.store_var(collection_data, true)
 	collection_file.close()
-	return [collection_data[str(seed)]]
+	return [collection_data[str(_seed)]]
 
 
 
@@ -123,6 +125,8 @@ func Update(collection, changed_values, filter={}, generate_defaults=true):
 			if generate_defaults:
 				var collection_defaults = collection_templates[collection]
 				collection_items[document_id] = MatchDefault(collection_defaults, collection_items[document_id])
+			
+			collection_items[document_id]["updated"] = Time.get_unix_time_from_system()
 			
 			updated_items.append(collection_items[document_id])
 	
@@ -237,7 +241,9 @@ func _GenerateTemplates():
 		CreateCollection(collection)
 
 func merge_dicts(dict1, dict2):
-	var result = dict1.duplicate()
+	dict1 = dict1.duplicate(true)
+	dict2 = dict2.duplicate(true)
+	var result = dict1.duplicate(true)
 	for key in dict2:
 		if result.has(key) and typeof(result[key]) == TYPE_DICTIONARY and typeof(dict2[key]) == TYPE_DICTIONARY:
 			result[key] = merge_dicts(result[key], dict2[key])
@@ -247,11 +253,10 @@ func merge_dicts(dict1, dict2):
 
 func MatchDefault(default_data, loaded_data, strict=true):
 	
-	if "strict_templates" in config:
-		strict = config.strict_templates
-	
 	loaded_data = loaded_data.duplicate(true)
 	var l_data = loaded_data.duplicate(true)
+	
+	default_data = default_data.duplicate(true)
 	
 	for data in default_data:
 		if not data in l_data:
@@ -262,10 +267,12 @@ func MatchDefault(default_data, loaded_data, strict=true):
 	if strict:
 		for data in loaded_data:
 			if not data in default_data:
-				if data == "id":
+				if data in ["id", "updated", "created"]:
 					continue
 				
 				l_data.erase(data)
 				
 	return l_data
+
+
 
