@@ -1,6 +1,7 @@
 # Godot4.0 ORM
 
-
+<details>
+<summary>GORM Plugins</summary>
 <details>
   <summary>GrimmJSON Plugin (Local data management, good for local save systems)</summary>
 
@@ -48,6 +49,9 @@
 <details>
   <summary>(TBD) PostgreSQL Plugin</summary>
 </details>
+  
+</details>
+
 
 <details>
 <summary>Godot4.0 ORM CRUD Operations</summary>
@@ -157,7 +161,8 @@ $GORM.DeleteCollection("Cars")
 </details>
 
 
-# GORM Filter Types
+<details>
+<summary>Godot4.0 ORM Filter Types</summary>
 
 ## Table of Contents
 - [Exact Match (`exact`) [`default behavior`]](#exact)
@@ -331,4 +336,4 @@ Case-insensitive check if the field value ends with the given string.
 ```gdscript
 $GORM.Read("ExampleCollection", {"name__iendswith": "N"})
 ```
-
+</details>
