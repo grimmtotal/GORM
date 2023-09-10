@@ -135,12 +135,12 @@ The `CreateCollection` operation allows you to create a new collection.
 
 **Syntax:**
 ```gdscript
-$GORM.CreateCollection("NewCollectionName", {"field1": default_value1, "field2": default_value2})
+$GORM.CreateCollection("NewCollectionName")
 ```
 
 **Example:**
 ```gdscript
-$GORM.CreateCollection("Cars", {"brand": "Unknown", "year": 2000})
+$GORM.CreateCollection("Cars")
 ```
 
 ---
