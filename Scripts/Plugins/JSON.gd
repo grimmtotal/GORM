@@ -19,7 +19,9 @@ var filter_functions = {
 	"regex": "_regex_filter",
 	"iregex": "_iregex_filter",
 	"startswith": "_startswith_filter",
-	"endswith": "_endswith_filter"
+	"istartswith": "_istartswith_filter",
+	"endswith": "_endswith_filter",
+	"iendswith": "_iendswith_filter",
 }
 
 var collection_templates = {}
@@ -373,8 +375,18 @@ func _startswith_filter(doc_value, filter_value):
 		return str(doc_value).begins_with(filter_value)
 	return false
 
+func _istartswith_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_STRING:
+		return str(doc_value).to_lower().begins_with(str(filter_value).to_lower())
+	return false
+
 func _endswith_filter(doc_value, filter_value):
 	if typeof(filter_value) == TYPE_STRING:
 		return str(doc_value).ends_with(filter_value)
+	return false
+
+func _iendswith_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_STRING:
+		return str(doc_value).to_lower().ends_with(str(filter_value).to_lower())
 	return false
 
