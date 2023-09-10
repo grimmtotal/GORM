@@ -149,7 +149,7 @@ Checks if the field value is in the given list.
 
 **Example:**
 ```gdscript
-$GORM.Read("ExampleCollection", {"is_alive__in": [true]})
+$GORM.Read("ExampleCollection", {"world_state__in": ["started", "ended", "ending"]})
 ```
 
 ### `range`
