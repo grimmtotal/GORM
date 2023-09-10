@@ -49,6 +49,114 @@
   <summary>(TBD) PostgreSQL Plugin</summary>
 </details>
 
+<details>
+<summary>Godot4.0 ORM CRUD Operations</summary>
+
+## Table of Contents
+- [Create](#create)
+- [Read](#read)
+- [Update](#update)
+- [Delete](#delete)
+- [CreateCollection](#createcollection)
+- [DeleteCollection](#deletecollection)
+
+### Create
+
+To add new records to your collection, you can use the `Create` operation.
+
+**Syntax:**
+```gdscript
+$GORM.Create("CollectionName", {"field1": value1, "field2": value2})
+```
+
+**Example:**
+```gdscript
+$GORM.Create("Users", {"name": "John", "age": 30})
+```
+
+---
+
+### Read
+
+The `Read` operation helps you to retrieve records based on certain conditions.
+
+**Syntax:**
+```gdscript
+$GORM.Read("CollectionName", {"field__filter_type": value})
+```
+
+**Example:**
+```gdscript
+$GORM.Read("Users", {"name__icontains": "oh"})
+```
+
+---
+
+### Update
+
+The `Update` operation allows you to modify existing records in your collection.
+
+**Syntax:**
+```gdscript
+$GORM.Update("CollectionName", {"field1": new_value1}, {"field__filter_type": value})
+```
+
+**Example:**
+```gdscript
+$GORM.Update("Users", {"age": 31}, {"name__exact": "John"})
+```
+
+---
+
+### Delete
+
+The `Delete` operation helps you remove records from your collection.
+
+**Syntax:**
+```gdscript
+$GORM.Delete("CollectionName", {"field__filter_type": value})
+```
+
+**Example:**
+```gdscript
+$GORM.Delete("Users", {"age__lt": 18})
+```
+
+---
+
+### CreateCollection
+
+The `CreateCollection` operation allows you to create a new collection.
+
+**Syntax:**
+```gdscript
+$GORM.CreateCollection("NewCollectionName", {"field1": default_value1, "field2": default_value2})
+```
+
+**Example:**
+```gdscript
+$GORM.CreateCollection("Cars", {"brand": "Unknown", "year": 2000})
+```
+
+---
+
+### DeleteCollection
+
+The `DeleteCollection` operation allows you to delete an existing collection.
+
+**Syntax:**
+```gdscript
+$GORM.DeleteCollection("CollectionName")
+```
+
+**Example:**
+```gdscript
+$GORM.DeleteCollection("Cars")
+```
+
+</details>
+
+
 # GORM Filter Types
 
 ## Table of Contents
