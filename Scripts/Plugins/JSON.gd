@@ -4,6 +4,24 @@ var prefix = "user://"
 var data_folder_name = "data"
 var ext = ".grcollection"
 
+var filter_functions = {
+	"exact": "_exact_filter",
+	"iexact": "_iexact_filter",
+	"contains": "_contains_filter",
+	"icontains": "_icontains_filter",
+	"gt": "_gt_filter",
+	"gte": "_gte_filter",
+	"lt": "_lt_filter",
+	"lte": "_lte_filter",
+	"in": "_in_filter",
+	"range": "_range_filter",
+	"isnull": "_isnull_filter",
+	"regex": "_regex_filter",
+	"iregex": "_iregex_filter",
+	"startswith": "_startswith_filter",
+	"endswith": "_endswith_filter"
+}
+
 var collection_templates = {}
 var config = {}
 
@@ -34,7 +52,7 @@ func CreateCollection(collection):
 	
 	return collection
 
-func Create(collection, document, generate_defaults=true):
+func Create(collection, document={}, generate_defaults=true):
 	var collection_path = _build_collection_path(collection)
 	var collection_exists = FileAccess.file_exists(collection_path)
 	
@@ -206,35 +224,6 @@ func GenerateHashedPassword(password, salt):
 func _build_collection_path(collection):
 	return prefix + data_folder_name + "/" + collection.to_upper() + ext
 
-func _filter(collection_items, filter):
-	var matched_documents = []
-	var items_without_metadata = collection_items.duplicate()
-	items_without_metadata.erase("_metadata") # Erase the metadata key
-	for document_id in items_without_metadata:
-		if filter.size() == 0 or _filter_match(items_without_metadata[document_id], filter):
-			matched_documents.append(items_without_metadata[document_id])
-	
-	return matched_documents
-
-func _filter_match(document, filter):
-	for key in filter:
-		if key == "_metadata":
-			continue
-	
-		if typeof(document) != TYPE_DICTIONARY or not document.has(key):
-			return false
-
-		var filter_value = filter[key]
-		var document_value = document[key]
-	
-		if typeof(filter_value) == TYPE_DICTIONARY:
-			if not _filter_match(document_value, filter_value):
-				return false
-		elif filter_value != document_value:
-			return false
-	
-	return true
-
 func _GenerateTemplates():
 	
 	for collection in collection_templates:
@@ -274,5 +263,118 @@ func MatchDefault(default_data, loaded_data, strict=true):
 				
 	return l_data
 
+func _filter(collection_items, filter):
+	var matched_documents = []
+	var items_without_metadata = collection_items.duplicate()
+	items_without_metadata.erase("_metadata") # Erase the metadata key
+	for document_id in items_without_metadata:
+		if filter.size() == 0 or _filter_match(items_without_metadata[document_id], filter):
+			matched_documents.append(items_without_metadata[document_id])
+	
+	return matched_documents
 
+func _filter_match(document, filter):
+	for key in filter.keys():
+		if key == "_metadata":
+			continue
+		
+		var split_key = key.split("__")
+		var actual_key = split_key[0]
+		var filter_type = split_key[1] if split_key.size() > 1 else "exact"
+		
+		if not document.has(actual_key):
+			return false
+		
+		var document_value = document[actual_key]
+		var filter_value = filter[key]
+		
+		if filter_type in filter_functions:
+			var filter_func = filter_functions[filter_type]
+			if not self.callv(filter_func, [document_value, filter_value]):
+				return false
+		else:
+			print("Unknown filter type: ", filter_type)
+			return false
+	return true
+
+# Filter functions
+func _exact_filter(doc_value, filter_value):
+	if typeof(doc_value) == typeof(filter_value):
+		return doc_value == filter_value
+	return false
+
+func _iexact_filter(doc_value, filter_value):
+	if typeof(doc_value) == TYPE_STRING and typeof(filter_value) == TYPE_STRING:
+		return doc_value.to_lower() == filter_value.to_lower()
+	return false
+
+func _contains_filter(doc_value, filter_value):
+	if typeof(doc_value) == TYPE_STRING and typeof(filter_value) == TYPE_STRING:
+		return doc_value.find(filter_value) != -1
+	return false
+
+func _icontains_filter(doc_value, filter_value):
+	if typeof(doc_value) == TYPE_STRING and typeof(filter_value) == TYPE_STRING:
+		return doc_value.to_lower().find(filter_value.to_lower()) != -1
+	return false
+
+func _gt_filter(doc_value, filter_value):
+	if typeof(doc_value) in [TYPE_INT, TYPE_FLOAT] and typeof(filter_value) in [TYPE_INT, TYPE_FLOAT]:
+		return doc_value > filter_value
+	return false
+
+func _gte_filter(doc_value, filter_value):
+	if typeof(doc_value) in [TYPE_INT, TYPE_FLOAT] and typeof(filter_value) in [TYPE_INT, TYPE_FLOAT]:
+		return doc_value >= filter_value
+	return false
+
+func _lt_filter(doc_value, filter_value):
+	if typeof(doc_value) in [TYPE_INT, TYPE_FLOAT] and typeof(filter_value) in [TYPE_INT, TYPE_FLOAT]:
+		return doc_value < filter_value
+	return false
+
+func _lte_filter(doc_value, filter_value):
+	if typeof(doc_value) in [TYPE_INT, TYPE_FLOAT] and typeof(filter_value) in [TYPE_INT, TYPE_FLOAT]:
+		return doc_value <= filter_value
+	return false
+
+func _in_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_ARRAY:
+		return doc_value in filter_value
+	return false
+
+func _range_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_ARRAY and filter_value.size() == 2:
+		if typeof(doc_value) in [TYPE_INT, TYPE_FLOAT]:
+			return doc_value >= filter_value[0] and doc_value <= filter_value[1]
+	return false
+
+func _isnull_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_BOOL:
+		return (doc_value == null and filter_value) or (doc_value != null and not filter_value)
+	return false
+
+func _regex_filter(doc_value, filter_value):
+	if typeof(doc_value) == TYPE_STRING and typeof(filter_value) == TYPE_STRING:
+		var regex = RegEx.new()
+		regex.compile(filter_value)
+		return regex.search(doc_value) != null
+	return false
+
+func _iregex_filter(doc_value, filter_value):
+	if typeof(doc_value) == TYPE_STRING and typeof(filter_value) == TYPE_STRING:
+		var regex = RegEx.new()
+		regex.compile(filter_value.to_lower())
+		return regex.search(doc_value.to_lower()) != null
+	return false
+
+func _startswith_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_STRING:
+		return str(doc_value).begins_with(filter_value)
+	return false
+
+func _endswith_filter(doc_value, filter_value):
+	if typeof(filter_value) == TYPE_STRING:
+		return str(doc_value).ends_with(filter_value)
+	return false
 
