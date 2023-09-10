@@ -2,7 +2,7 @@
 
 <details>
 <summary>GORM Plugins</summary>
-<details>
+&nbsp;&nbsp;<details>
   <summary>GrimmJSON Plugin (Local data management, good for local save systems)</summary>
 
 - Configuration:
@@ -15,7 +15,7 @@
 ```
 </details>
 
-<details>
+&nbsp;&nbsp;<details>
   <summary>(WIP) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 
@@ -46,14 +46,15 @@
 ```
 </details>
 
-<details>
+&nbsp;&nbsp;<details>
   <summary>(TBD) PostgreSQL Plugin</summary>
 </details>
   
 </details>
 
 
-<details>
+
+&nbsp;&nbsp;<details>
 <summary>Godot4.0 ORM CRUD Operations</summary>
 
 ## Table of Contents
