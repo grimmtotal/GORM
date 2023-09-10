@@ -1,7 +1,7 @@
 # Godot4.0 ORM
 
 <details>
-<summary>GORM Plugins</summary>
+<summary>GORM Plugins/Setup</summary>
 &nbsp;&nbsp;<details>
   <summary>GrimmJSON Plugin (Local data management, good for local save systems)</summary>
 
