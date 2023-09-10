@@ -1,18 +1,21 @@
 # Godot4.0 ORM
 
-### GrimmJSON Plugin (Local data management, good for local save systems)
-- Configuration: 
+
+<details>
+  <summary>GrimmJSON Plugin (Local data management, good for local save systems)</summary>
+
+- Configuration:
 ```gdscript
-
-	$GORM.Configure($GORM/GrimmJSON, {}, {
-		"ExampleCollection":{
-			"example_default_value":0,
-		}
-	})
-
+  $GORM.Configure($GORM/GrimmJSON, {}, {
+    "ExampleCollection":{
+      "example_default_value":0,
+    }
+  })
 ```
+</details>
 
-### (WIP) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)
+<details>
+  <summary>(WIP) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 
 ** Disclaimer, this plugin is a WIP and not done yet.
@@ -25,45 +28,45 @@
 ![image](https://github.com/grimmtotal/GORM/assets/83027121/e608447e-5e22-4dec-8fe3-f82146453991)
 
 
-- Configuration: 
+- Configuration:
 ```gdscript
-
-	$GORM.Configure($GORM/GrimmJSON,
-	{
-      		"api_key":"your_api_key",
-		"base_url":"your_base_url",
-		"data_source": "your_data_source",
-		"database": "your_database",
-	},
-    	{
-		"ExampleCollection":{
-			"example_default_value":0,
-		}
-	})
-
+  $GORM.Configure($GORM/GrimmJSON,
+  {
+        "api_key":"your_api_key",
+    "base_url":"your_base_url",
+    "data_source": "your_data_source",
+    "database": "your_database",
+  },
+  {
+    "ExampleCollection":{
+      "example_default_value":0,
+    }
+  })
 ```
+</details>
 
 
 # GORM Filter Types
 
 ## Table of Contents
-- [exact](#exact)
-- [iexact](#iexact)
-- [contains](#contains)
-- [icontains](#icontains)
-- [gt](#gt)
-- [gte](#gte)
-- [lt](#lt)
-- [lte](#lte)
-- [in](#in)
-- [range](#range)
-- [isnull](#isnull)
-- [regex](#regex)
-- [iregex](#iregex)
-- [startswith](#startswith)
-- [istartswith](#istartswith)
-- [endswith](#endswith)
-- [iendswith](#iendswith)
+- [Exact Match (`exact`)](#exact)
+- [Case-Insensitive Exact Match (`iexact`)](#iexact)
+- [Contains String (`contains`)](#contains)
+- [Case-Insensitive Contains String (`icontains`)](#icontains)
+- [Greater Than (`gt`)](#gt)
+- [Greater Than or Equal To (`gte`)](#gte)
+- [Less Than (`lt`)](#lt)
+- [Less Than or Equal To (`lte`)](#lte)
+- [In List (`in`)](#in)
+- [Within Range (`range`)](#range)
+- [Is Null (`isnull`)](#isnull)
+- [Regular Expression Match (`regex`)](#regex)
+- [Case-Insensitive Regular Expression Match (`iregex`)](#iregex)
+- [Starts With (`startswith`)](#startswith)
+- [Case-Insensitive Starts With (`istartswith`)](#istartswith)
+- [Ends With (`endswith`)](#endswith)
+- [Case-Insensitive Ends With (`iendswith`)](#iendswith)
+
 
 ### `exact`
 
