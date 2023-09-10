@@ -5,9 +5,9 @@ extends Node
 func _ready():
 	$GORM.Configure($GORM/MongoDBAtlas, {
 		"api_key":"",
-		"base_url":"https://us-west-2.aws.data.mongodb-api.com/app/data-ksjef/endpoint/data/v1",
-		"data_source":"CoasterWorld",
-		"database":"CoasterWorld"
+		"base_url":"mongodb-endpoint",
+		"data_source":"DataSource",
+		"database":"DataBase"
 	}, {
 		"Worlds":{
 			"example_default_value":0,
