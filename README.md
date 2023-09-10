@@ -49,7 +49,7 @@
 # GORM Filter Types
 
 ## Table of Contents
-- [Exact Match (`exact`)](#exact)
+- [Exact Match (`exact`) [`default behavior`]](#exact)
 - [Case-Insensitive Exact Match (`iexact`)](#iexact)
 - [Contains String (`contains`)](#contains)
 - [Case-Insensitive Contains String (`icontains`)](#icontains)
