@@ -253,6 +253,7 @@ func MatchDefault(default_data, loaded_data, strict=true):
 		if not data in l_data:
 			l_data[data] = default_data[data]
 		elif typeof(l_data[data]) == TYPE_DICTIONARY:
+			if default_data[data] != {}:
 				l_data[data] = MatchDefault(default_data[data], l_data[data])
 	
 	if strict:
