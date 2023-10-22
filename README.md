@@ -31,7 +31,7 @@
 
 - Configuration:
 ```gdscript
-  $GORM.Configure($GORM/GrimmJSON,
+  $GORM.Configure($GORM/MongoDBAtlas,
   {
         "api_key":"your_api_key",
     "base_url":"your_base_url",
