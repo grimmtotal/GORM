@@ -16,7 +16,7 @@
 </details>
 
 &nbsp;&nbsp;<details>
-  <summary>(WIP) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
+  <summary>(WIP-Haitus in favor of postgres) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 
 ** Disclaimer, this plugin is a WIP and not done yet.
@@ -47,7 +47,7 @@
 </details>
 
 &nbsp;&nbsp;<details>
-  <summary>(TBD) PostgreSQL Plugin</summary>
+  <summary>(WIP) PostgreSQL Plugin</summary>
 </details>
   
 </details>
