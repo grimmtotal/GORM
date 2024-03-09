@@ -16,7 +16,7 @@
 </details>
 
 &nbsp;&nbsp;<details>
-  <summary>(WIP-Haitus in favor of postgres) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
+  <summary>(Haitus in favor of postgres) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 
 ** Disclaimer, this plugin is a WIP and not done yet.
