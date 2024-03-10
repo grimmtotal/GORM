@@ -2,7 +2,7 @@ extends Node
 
 
 var _config = {}
-@onready var _plugin = $MongoDBAtlas
+@onready var _plugin = null
 
 func Configure(plugin:Node, config={}, collection_templates={}):
 	_plugin = plugin
