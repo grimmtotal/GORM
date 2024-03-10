@@ -25,6 +25,17 @@ func _ready():
 	var new_result = await $GORM.Read("users")
 	print(new_result)
 	
+	var result = await $GORM.Create("worlds", {"example_non_strict": "5"}, false)
+	print(result)
+	
+	result = await $GORM.Update("worlds", {"example_non_strict": "9"}, {"example_non_strict": "5"}, false)
+	print(result)
+	
+	#result = await $GORM.Delete("worlds", {"example_non_strict": "9"})
+	print(result)
+	
+	#await $GORM.DeleteCollection("worlds")
+	
 #
 #	print(await $GORM.Create("Addresses", {
 #		"example_default_value":13,

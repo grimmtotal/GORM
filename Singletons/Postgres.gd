@@ -1318,7 +1318,7 @@ func reponce_parser(fragmented_answer: PackedByteArray):
 							# Since more field types might be added in future, frontends should silently ignore fields of unrecognized type.
 							pass
 				
-				var last_datas_command_sql = datas_command_sql.back()
+				var last_datas_command_sql = datas_command_sql.back() if not datas_command_sql.is_empty() else {}
 				
 				if last_datas_command_sql:
 					last_datas_command_sql.notice = notice_object

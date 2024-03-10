@@ -4,8 +4,6 @@ var _collection_templates = {}
 
 var _result = []
 
-var client = HTTPRequest.new()
-
 var _config = {
 	"USER":"USER",
 	"PASSWORD":"PASSWORD",
@@ -30,10 +28,11 @@ func Configure(config={}, collection_templates={}):
 	
 	database.connect_to_host("postgresql://%s:%s@%s:%d/%s" % [_config.USER, _config.PASSWORD, _config.HOST, _config.PORT, _config.DATABASE])
 	
+	await database.connection_established
 
 func CreateCollection(collection):
 	var query = """
-		CREATE TABLE public.%s (
+		CREATE TABLE IF NOT EXISTS public.%s (
 			id SERIAL PRIMARY KEY,
 			data JSONB NOT NULL
 		);
@@ -181,7 +180,6 @@ func _exit_tree() -> void:
 func _process(_delta: float) -> void:
 	database.poll()
 
-
 func _connection_established() -> void:
 	print("Connected")
 
@@ -209,6 +207,7 @@ func _data_received(error_object: Dictionary, transaction_status: PostgreSQLClie
 			_result.append(formatted_row)
 	
 	if not error_object.is_empty():
+		_result = error_object.duplicate(true)
 		print_debug("Error:", error_object)
 	
 	
