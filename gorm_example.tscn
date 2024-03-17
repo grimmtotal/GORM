@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://cyik654ctdgwo"]
+[gd_scene load_steps=7 format=3 uid="uid://cyik654ctdgwo"]
 
 [ext_resource type="Script" path="res://Scripts/gorm_example.gd" id="1_cxeqh"]
 [ext_resource type="Script" path="res://Scripts/GORM.gd" id="1_enmi8"]
 [ext_resource type="Script" path="res://Scripts/Plugins/PostgreSQL.gd" id="2_sqhxs"]
 [ext_resource type="Script" path="res://Scripts/Plugins/JSON.gd" id="3_ytrn2"]
 [ext_resource type="Script" path="res://Scripts/Plugins/MongoDB.gd" id="4_qlf13"]
+[ext_resource type="Script" path="res://Scripts/Plugins/SQLite.gd" id="6_8tyxi"]
 
 [node name="GORM_EXAMPLE" type="Node"]
 script = ExtResource("1_cxeqh")
@@ -20,3 +21,6 @@ script = ExtResource("3_ytrn2")
 
 [node name="MongoDBAtlas" type="Node" parent="GORM"]
 script = ExtResource("4_qlf13")
+
+[node name="SQLite" type="Node" parent="GORM"]
+script = ExtResource("6_8tyxi")
