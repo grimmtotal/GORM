@@ -60,7 +60,6 @@ func Create(collection, document={}, generate_defaults=true):
 	var new_id : int = 0
 	
 	var meta_data = Read(collection, {"id":0}, false, true)
-	print(meta_data)
 	if not meta_data.is_empty():
 		new_id = meta_data[0]["_seed"] + 1
 		Update(collection, {"_seed": new_id}, {"id":0}, false, true)

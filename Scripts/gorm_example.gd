@@ -12,3 +12,8 @@ func _ready():
 	
 	print($GORM.Create("Worlds", {"example_default_value": 1}))
 	print($GORM.Read("Worlds"))
+	print($GORM.Update("Worlds", {"example_strict": 4}, {"example_default_value": 1}))
+	print($GORM.Read("Worlds"))
+	$GORM.Delete("Worlds")
+	print($GORM.Read("Worlds"))
+	
