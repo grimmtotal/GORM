@@ -3,7 +3,7 @@ extends Node
 var db : SQLite = null
 var db_name := "res://data/gorm"
 
-const verbosity_level : int = SQLite.NORMAL
+const verbosity_level : int = SQLite.QUIET
 
 var _collection_templates = {}
 
@@ -18,9 +18,10 @@ func _ready():
 func Configure(config={}, collection_templates={}):
 	_config = config
 	_collection_templates = collection_templates
+	_GenerateTemplates()
 
 func CreateCollection(collection):
-	db.open_db()
+	
 	var table_dict : Dictionary = Dictionary()
 	table_dict["id"] = {"data_type":"int", "primary_key": true, "not_null": true}
 	table_dict["document_id"] = {"data_type":"int", "not_null": true}
@@ -30,16 +31,15 @@ func CreateCollection(collection):
 	table_dict["updated"] = {"data_type":"real"}
 	table_dict["created"] = {"data_type":"real"}
 	
+	db.open_db()
 	if not db.query("SELECT * FROM %s LIMIT 1;" % collection):
 		db.create_table(collection, table_dict)
 		db.query("CREATE INDEX IF NOT EXISTS index_on_document_id ON %s (document_id);" % collection)
-	
-	db.close_db()
-	
-	if Read(collection, {"id":0}).is_empty():
-		db.open_db()
-		Create(collection, {"_seed":0}, false)
 		db.close_db()
+		Create(collection, {"_seed":0}, false)
+	else:
+		db.close_db()
+	
 
 func DeleteCollection(collection):
 	db.open_db()
@@ -59,10 +59,11 @@ func Create(collection, document={}, generate_defaults=true):
 	
 	var new_id : int = 0
 	
-	var meta_data = Read(collection, {"id":0})
+	var meta_data = Read(collection, {"id":0}, false, true)
+	print(meta_data)
 	if not meta_data.is_empty():
 		new_id = meta_data[0]["_seed"] + 1
-		Update(collection, {"_seed": new_id}, {"id":0}, false)
+		Update(collection, {"_seed": new_id}, {"id":0}, false, true)
 		
 	db.open_db()
 	var rows = []
@@ -87,7 +88,7 @@ func Create(collection, document={}, generate_defaults=true):
 	db.close_db()
 	return [document]
 
-func Read(collection, filter={}, generate_defaults=true):
+func Read(collection, filter={}, generate_defaults=true, show_hidden=false):
 	var where_clause = _where_clause_from_filter(filter)
 	var query = "SELECT * FROM %s WHERE %s;" % [collection, where_clause]
 	
@@ -113,6 +114,9 @@ func Read(collection, filter={}, generate_defaults=true):
 		var created_values = []
 		
 		for item in result:
+			if item.document_id == 0 and not show_hidden:
+				continue
+			
 			formatted_result["id"] = item.document_id
 			formatted_result[item.key] = type_convert(str_to_var(item.value), item.value_type)
 			updated_values.append(item.updated)
@@ -121,16 +125,19 @@ func Read(collection, filter={}, generate_defaults=true):
 		updated_values.sort()
 		created_values.sort()
 		
-		formatted_result["updated"] = updated_values.pop_back()
-		formatted_result["created"] = created_values.pop_front()
-			
-		formatted_results.append(unflatten_dict(formatted_result))
+		if not updated_values.is_empty() and not created_values.is_empty():
+			formatted_result["updated"] = updated_values.pop_back()
+			formatted_result["created"] = created_values.pop_front()
+		
+		if not formatted_result.is_empty():
+			formatted_results.append(unflatten_dict(formatted_result))
+		
 		db.close_db()
 		
 	return formatted_results
 
-func Update(collection, changed_values, filter={}, generate_defaults=true):
-	var affected_documents = Read(collection, filter, generate_defaults)
+func Update(collection, changed_values, filter={}, generate_defaults=true, show_hidden=false):
+	var affected_documents = Read(collection, filter, generate_defaults, show_hidden)
 	
 	changed_values.erase("id")
 	changed_values.erase("updated")
@@ -306,3 +313,7 @@ func _where_clause_from_filter(filter):
 			where_clauses.append(clause)
 	
 	return " AND ".join(where_clauses) if where_clauses.size() > 0 else "1=1"
+
+func _GenerateTemplates():
+	for collection in _collection_templates:
+		CreateCollection(collection)
