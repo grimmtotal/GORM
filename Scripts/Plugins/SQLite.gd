@@ -3,15 +3,9 @@ extends Node
 var db : SQLite = null
 var db_name := "res://data/gorm"
 
-const verbosity_level : int = SQLite.VERBOSE
+const verbosity_level : int = SQLite.NORMAL
 
-var collection_templates = {
-	"test":{
-		"test": {},
-		"not_nested": 0,
-		"test_again": 10
-	}
-}
+var _collection_templates = {}
 
 var _config = {}
 
@@ -20,30 +14,10 @@ func _ready():
 	db.path = db_name
 	db.verbosity_level = verbosity_level
 	
-	var flat_dict = {
-	"test": {
-		"nested1": 4,
-		"nested2": 8,
-		"test_array": [1, 2, "a"],
-		"deep_nested": {
-			"nested": 0,
-			"other":{"even_deeper": 90, "other": "100"}
-			}
-	},
-	"not_nested": 9
-	}
-	
-	CreateCollection("test")
-	Create("test", flat_dict)
-	#print(Read("test"))
-	#print(Update("test", {"test":{"test_array": [3, 2, 1]}}))
-	#Delete("test", {"test.test_array": [3, 2, 1]})
-
-
 
 func Configure(config={}, collection_templates={}):
 	_config = config
-	collection_templates = collection_templates
+	_collection_templates = collection_templates
 
 func CreateCollection(collection):
 	db.open_db()
@@ -78,7 +52,7 @@ func Create(collection, document={}, generate_defaults=true):
 	document.erase("created")
 	
 	if generate_defaults:
-		document = MatchDefault(collection_templates[collection], document)
+		document = MatchDefault(_collection_templates[collection], document)
 	
 	
 	var flattened_document : Dictionary = flatten_dict(document)
