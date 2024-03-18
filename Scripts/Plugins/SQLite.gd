@@ -316,3 +316,38 @@ func _where_clause_from_filter(filter):
 func _GenerateTemplates():
 	for collection in _collection_templates:
 		CreateCollection(collection)
+
+var clean_map = {
+	"=":"|Equals|",
+	"*":"|Star|",
+	"+":"|Plus|",
+	"-":"|Minus|",
+	";":"|SemiColon|",
+	"(":"|oParenthesis|",
+	")":"|cParenthesis|",
+	"[":"|oBracket|",
+	"]":"|cBracket|",
+	"{":"|oCurl|",
+	"}":"|cCurl|",
+	"/":"|Slash|",
+	"\\":"|bSlash|",
+	"'":"|sQuote|",
+	'"':"|dQuote|",
+	"$":"|dSign|",
+}
+
+func CleanData(text:String):
+
+	for key in clean_map:
+		if key in text:
+			text = text.replace(key, clean_map[key])
+
+	return text
+
+func UnCleanData(text:String):
+
+	for key in clean_map:
+		if clean_map[key] in text:
+			text = text.replace(clean_map[key], key)
+
+	return text
