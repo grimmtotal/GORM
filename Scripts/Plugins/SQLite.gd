@@ -33,7 +33,11 @@ func _ready():
 	"not_nested": 9
 	}
 	
-	Delete("test")
+	#Create("test", flat_dict)
+	#print(Read("test", {"not_nested": 9}))
+	#print(Update("test", {"test":{"test_array": [3, 2, 1]}}))
+	Delete("test", {"test.test_array": [3, 2, 1]})
+
 
 
 func Configure(config={}, collection_templates={}):
@@ -128,15 +132,29 @@ func Read(collection, filter={}, generate_defaults=true):
 	return formatted_results
 
 func Update(collection, changed_values, filter={}, generate_defaults=true):
-	var where_clause = _where_clause_from_filter(filter)
+	var affected_documents = Read(collection, filter, generate_defaults)
+	changed_values = flatten_dict(changed_values)
+	
+	var updated_ids = []
+	for document in affected_documents:
+		updated_ids.append({"id": document.id})
+		for key in changed_values:
+			var value = changed_values[key]
+			var query = "UPDATE %s SET \"value\" = '%s' WHERE \"key\" = '%s' AND \"document_id\" = '%s'" % [collection, value, key, document.id]
+			db.open_db()
+			db.query(query)
+			db.close_db()
+	
+	return updated_ids
 
 func Delete(collection, filter={}):
-	var where_clause = _where_clause_from_filter(filter)
-	var query = "DELETE FROM %s WHERE %s;" % [collection, where_clause]
-	
-	db.open_db()
-	db.query(query)
-	db.close_db()
+	var affected_documents = Read(collection, filter, false)
+	for document in affected_documents:
+		var query = "DELETE FROM %s WHERE \"document_id\" = '%s';" % [collection, document.id]
+		
+		db.open_db()
+		db.query(query)
+		db.close_db()
 	
 	return []
 
