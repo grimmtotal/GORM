@@ -33,10 +33,11 @@ func _ready():
 	"not_nested": 9
 	}
 	
-	#Create("test", flat_dict)
-	#print(Read("test", {"not_nested": 9}))
+	CreateCollection("test")
+	Create("test", flat_dict)
+	#print(Read("test"))
 	#print(Update("test", {"test":{"test_array": [3, 2, 1]}}))
-	Delete("test", {"test.test_array": [3, 2, 1]})
+	#Delete("test", {"test.test_array": [3, 2, 1]})
 
 
 
@@ -60,6 +61,11 @@ func CreateCollection(collection):
 		db.query("CREATE INDEX IF NOT EXISTS index_on_document_id ON %s (document_id);" % collection)
 	
 	db.close_db()
+	
+	if Read(collection, {"id":0}).is_empty():
+		db.open_db()
+		Create(collection, {"_seed":0}, false)
+		db.close_db()
 
 func DeleteCollection(collection):
 	db.open_db()
@@ -67,17 +73,24 @@ func DeleteCollection(collection):
 	db.close_db()
 
 func Create(collection, document={}, generate_defaults=true):
+	document.erase("id")
+	document.erase("updated")
+	document.erase("created")
+	
 	if generate_defaults:
 		document = MatchDefault(collection_templates[collection], document)
 	
-	db.open_db()
+	
 	var flattened_document : Dictionary = flatten_dict(document)
-	var succeeded = db.query("SELECT DISTINCT document_id FROM %s" % collection)
 	
-	if not succeeded:
-		return []
+	var new_id : int = 0
 	
-	var new_id : int = len(db.query_result) + 1
+	var meta_data = Read(collection, {"id":0})
+	if not meta_data.is_empty():
+		new_id = meta_data[0]["_seed"] + 1
+		Update(collection, {"_seed": new_id}, {"id":0}, false)
+		
+	db.open_db()
 	var rows = []
 	for key in flattened_document:
 		var value = flattened_document[key]
@@ -91,7 +104,7 @@ func Create(collection, document={}, generate_defaults=true):
 		})
 	
 	
-	succeeded = db.insert_rows(collection, rows)
+	var succeeded = db.insert_rows(collection, rows)
 	
 	if not succeeded:
 		return []
@@ -122,9 +135,20 @@ func Read(collection, filter={}, generate_defaults=true):
 		var result = db.query_result.duplicate(true)
 		var formatted_result = {}
 		
+		var updated_values = []
+		var created_values = []
+		
 		for item in result:
 			formatted_result["id"] = item.document_id
 			formatted_result[item.key] = type_convert(str_to_var(item.value), item.value_type)
+			updated_values.append(item.updated)
+			created_values.append(item.created)
+		
+		updated_values.sort()
+		created_values.sort()
+		
+		formatted_result["updated"] = updated_values.pop_back()
+		formatted_result["created"] = created_values.pop_front()
 			
 		formatted_results.append(unflatten_dict(formatted_result))
 		db.close_db()
@@ -133,6 +157,11 @@ func Read(collection, filter={}, generate_defaults=true):
 
 func Update(collection, changed_values, filter={}, generate_defaults=true):
 	var affected_documents = Read(collection, filter, generate_defaults)
+	
+	changed_values.erase("id")
+	changed_values.erase("updated")
+	changed_values.erase("created")
+	
 	changed_values = flatten_dict(changed_values)
 	
 	var updated_ids = []
@@ -140,7 +169,7 @@ func Update(collection, changed_values, filter={}, generate_defaults=true):
 		updated_ids.append({"id": document.id})
 		for key in changed_values:
 			var value = changed_values[key]
-			var query = "UPDATE %s SET \"value\" = '%s' WHERE \"key\" = '%s' AND \"document_id\" = '%s'" % [collection, value, key, document.id]
+			var query = "UPDATE %s SET \"value\" = '%s', \"updated\" = '%s' WHERE \"key\" = '%s' AND \"document_id\" = '%s'" % [collection, value, Time.get_unix_time_from_system(), key, document.id]
 			db.open_db()
 			db.query(query)
 			db.close_db()
