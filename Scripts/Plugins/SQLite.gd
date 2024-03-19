@@ -34,7 +34,7 @@ func CreateCollection(collection):
 	db.open_db()
 	if not db.query("SELECT * FROM %s LIMIT 1;" % collection):
 		db.create_table(collection, table_dict)
-		db.query("CREATE INDEX IF NOT EXISTS index_on_document_id ON %s (document_id);" % collection)
+		db.query("CREATE INDEX IF NOT EXISTS index_%s_on_document_id ON %s (document_id);" % [collection, collection])
 		db.close_db()
 		Create(collection, {"_seed":0}, false)
 	else:
