@@ -16,6 +16,21 @@
 </details>
 
 &nbsp;&nbsp;<details>
+  <summary>SQLite Plugin</summary>
+** Requires https://github.com/2shady4u/godot-sqlite
+
+
+  - Configuration:
+```gdscript
+  $GORM.Configure($GORM/SQLite, {}, {
+    "ExampleCollection":{
+      "example_default_value":0,
+    }
+  })
+```
+</details>
+
+&nbsp;&nbsp;<details>
   <summary>(Haitus in favor of postgres) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 
