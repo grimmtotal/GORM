@@ -71,7 +71,7 @@ func Create(collection, document={}, generate_defaults=true):
 		rows.append({
 			"document_id": new_id,
 			"key": key,
-			"value": str(value),
+			"value": CleanData(str(value)),
 			"value_type": typeof(value),
 			"updated": Time.get_unix_time_from_system(),
 			"created": Time.get_unix_time_from_system()
@@ -117,7 +117,7 @@ func Read(collection, filter={}, generate_defaults=true, show_hidden=false):
 				continue
 			
 			formatted_result["id"] = item.document_id
-			formatted_result[item.key] = type_convert(str_to_var(item.value), item.value_type)
+			formatted_result[item.key] = _parse_value(UnCleanData(item.value), item.value_type)
 			updated_values.append(item.updated)
 			created_values.append(item.created)
 		
@@ -148,7 +148,7 @@ func Update(collection, changed_values, filter={}, generate_defaults=true, show_
 	for document in affected_documents:
 		updated_ids.append({"id": document.id})
 		for key in changed_values:
-			var value = changed_values[key]
+			var value = CleanData(str(changed_values[key]))
 			var query = "UPDATE %s SET \"value\" = '%s', \"updated\" = '%s' WHERE \"key\" = '%s' AND \"document_id\" = '%s'" % [collection, value, Time.get_unix_time_from_system(), key, document.id]
 			db.open_db()
 			db.query(query)
@@ -307,7 +307,7 @@ func _construct_vanilla_where_clause(filter_key, filter_value):
 func _where_clause_from_filter(filter):
 	var where_clauses = []
 	for key in filter.keys():
-		var clause = _construct_where_clause(key, filter[key])
+		var clause = _construct_where_clause(key, CleanData(str(filter[key])))
 		if clause != "":
 			where_clauses.append(clause)
 	
@@ -317,37 +317,41 @@ func _GenerateTemplates():
 	for collection in _collection_templates:
 		CreateCollection(collection)
 
+func _parse_value(value, type):
+	var parsed_value = str_to_var(value)
+	if parsed_value == null:
+		return value
+	return type_convert(parsed_value, type)
+
 var clean_map = {
-	"=":"|Equals|",
-	"*":"|Star|",
-	"+":"|Plus|",
-	"-":"|Minus|",
-	";":"|SemiColon|",
-	"(":"|oParenthesis|",
-	")":"|cParenthesis|",
-	"[":"|oBracket|",
-	"]":"|cBracket|",
-	"{":"|oCurl|",
-	"}":"|cCurl|",
-	"/":"|Slash|",
-	"\\":"|bSlash|",
-	"'":"|sQuote|",
-	'"':"|dQuote|",
-	"$":"|dSign|",
+	"=":"||",
+	"*":"||",
+	"+":"||",
+	"-":"||",
+	";":"||",
+	"(":"||",
+	")":"||",
+	"[":"||",
+	"]":"||",
+	"{":"||",
+	"}":"||",
+	"/":"||",
+	"\\":"||",
+	"'":"||",
+	'"':"||",
+	"$":"||",
 }
 
 func CleanData(text:String):
-
 	for key in clean_map:
 		if key in text:
 			text = text.replace(key, clean_map[key])
-
+	
 	return text
 
 func UnCleanData(text:String):
-
 	for key in clean_map:
 		if clean_map[key] in text:
 			text = text.replace(clean_map[key], key)
-
+	
 	return text
