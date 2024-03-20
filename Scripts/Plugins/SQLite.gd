@@ -318,6 +318,9 @@ func _GenerateTemplates():
 		CreateCollection(collection)
 
 func _parse_value(value, type):
+	if type == TYPE_STRING:
+		return value
+	
 	var parsed_value = str_to_var(value)
 	if parsed_value == null:
 		return value
