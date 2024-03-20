@@ -1,7 +1,7 @@
 extends Node
 
 var db : SQLite = null
-var db_name := "res://data/gorm"
+var db_name := "user://data/gorm"
 
 const verbosity_level : int = SQLite.QUIET
 
