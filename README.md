@@ -8,9 +8,9 @@
 - Configuration:
 ```gdscript
   $GORM.Configure($GORM/GrimmJSON, {}, {
-    "ExampleCollection":{
-      "example_default_value":0,
-    }
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
   })
 ```
 </details>
@@ -23,9 +23,9 @@
   - Configuration:
 ```gdscript
   $GORM.Configure($GORM/SQLite, {}, {
-    "ExampleCollection":{
-      "example_default_value":0,
-    }
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
   })
 ```
 </details>
@@ -52,15 +52,15 @@
 ```gdscript
   $GORM.Configure($GORM/MongoDBAtlas,
   {
-        "api_key":"your_api_key",
-    "base_url":"your_base_url",
-    "data_source": "your_data_source",
-    "database": "your_database",
+		"api_key":"your_api_key",
+	"base_url":"your_base_url",
+	"data_source": "your_data_source",
+	"database": "your_database",
   },
   {
-    "ExampleCollection":{
-      "example_default_value":0,
-    }
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
   })
 ```
 </details>
