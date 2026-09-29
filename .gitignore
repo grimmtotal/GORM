@@ -1,2 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
+
+# Temporary files from Godot and Windows
+*.tmp
+*.TMP
+~*
