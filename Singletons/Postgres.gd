@@ -98,6 +98,11 @@ var next_etape := false
 func connect_to_host(url: String, secure_connection_method: SecureConnectionMethod = SecureConnectionMethod.NONE, _connect_timeout := 30) -> int:
 	global_url = url
 	secure_connection_method_buffer = secure_connection_method
+	
+	# Clear anything left over from a connection the backend dropped.
+	busy = false
+	response_buffer = PackedByteArray()
+	datas_command_sql = []
 	var error := 1
 	
 	# If the fontend was already connected to the backend, we disconnect it before reconnecting.
@@ -125,8 +130,14 @@ func connect_to_host(url: String, secure_connection_method: SecureConnectionMeth
 		if result.strings[4]:
 			port = result.strings[4].to_int()
 		
-		if client.get_status() == StreamPeerTCP.STATUS_NONE:
-			error = client.connect_to_host(result.strings[3], port)
+		# A socket left open by a connection the backend dropped must be closed before reconnecting.
+		if client.get_status() != StreamPeerTCP.STATUS_NONE:
+			if stream_peer_tls.get_status() != StreamPeerTLS.STATUS_DISCONNECTED:
+				stream_peer_tls.disconnect_from_stream()
+			client.disconnect_from_host()
+			status_ssl = 0
+		
+		error = client.connect_to_host(result.strings[3], port)
 		
 		# Get the fist message of server.
 		if error == OK:

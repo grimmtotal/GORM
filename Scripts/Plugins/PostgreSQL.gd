@@ -35,6 +35,7 @@ var _collection_templates = {}
 
 var _connection_state := ConnectionState.DISCONNECTED
 var _query_running := false
+var _connect_attempt := 0
 var _identifier_regex := RegEx.new()
 
 
@@ -67,8 +68,9 @@ func Configure(config={}, collection_templates={}):
 		_set_error({"message": "Invalid PostgreSQL connection settings"})
 		return ERR_INVALID_PARAMETER
 
+	_connect_attempt += 1
 	if is_inside_tree():
-		get_tree().create_timer(_config.CONNECT_TIMEOUT).timeout.connect(_connect_timeout)
+		get_tree().create_timer(_config.CONNECT_TIMEOUT).timeout.connect(_connect_timeout.bind(_connect_attempt))
 
 	if not await _connect_finished:
 		return ERR_CANT_CONNECT
@@ -296,8 +298,8 @@ func _authentication_error(error_object: Dictionary) -> void:
 	_fail_connection()
 
 
-func _connect_timeout() -> void:
-	if _connection_state == ConnectionState.CONNECTING:
+func _connect_timeout(attempt: int) -> void:
+	if attempt == _connect_attempt and _connection_state == ConnectionState.CONNECTING:
 		_set_error({"message": "Timed out connecting to PostgreSQL at %s:%d" % [_config.HOST, _config.PORT]})
 		database.client.disconnect_from_host()
 		_fail_connection()
