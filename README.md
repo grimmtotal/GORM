@@ -31,7 +31,38 @@
 </details>
 
 &nbsp;&nbsp;<details>
-  <summary>(WIP) PostgreSQL Plugin</summary>
+  <summary>PostgreSQL Plugin</summary>
+
+** Uses the bundled pure-GDScript client (`Singletons/Postgres.gd`, based on https://github.com/Marzin-bot/PostgreSQLClient), no native libraries needed. Requires PostgreSQL 11 or newer.
+
+- Configuration:
+```gdscript
+  var error = await $GORM.Configure($GORM/PostgreSQL, {
+	"USER": "postgres",
+	"PASSWORD": "your_password",
+	"HOST": "localhost",
+	"PORT": 5432,
+	"DATABASE": "your_database",
+	"SSL": false,            # optional, use a TLS connection
+	"CONNECT_TIMEOUT": 10.0, # optional, seconds
+  }, {
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
+  })
+  # error is OK, or ERR_CANT_CONNECT (see $GORM/PostgreSQL.last_error for why)
+```
+
+- Notes:
+  - Every call must be awaited, e.g. `var players = await $GORM.Read("Players", {"gold__gt": 100})`. Calls made at the same time are queued and run in order.
+  - Each collection is a table with `id`, `data` (the document as JSONB), `created` and `updated`. Collection names may only use letters, digits and underscores, and are case-insensitive.
+  - Values are always sent as query parameters, never pasted into the SQL, so user input can't inject SQL.
+  - `Update` merges into the stored document: nested dictionaries are merged key by key and `"a.b"` keys update nested values.
+  - `Update` and `Delete` return `[{"id": ...}]` for each affected document. `Delete` with an empty filter deletes nothing.
+  - On failure a call returns `[]` (or `false` for collection calls), and the error is kept in `$GORM/PostgreSQL.last_error`. An unknown or invalid filter fails the call instead of being ignored.
+  - JSON has no integer type, so numbers are read back as floats, except where the collection template has an `int` default.
+  - Godot types that JSON can't hold (Vector3, Color, ...) are stored as strings.
+  - All filter types are supported. `exact` compares numbers as numbers (`5` matches `5.0`) and strings as text.
 </details>
 
 &nbsp;&nbsp;<details>

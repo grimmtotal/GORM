@@ -16,8 +16,8 @@ func Configure(plugin:Node, config={}, collection_templates={}):
 func CreateCollection(collection):
 	if _plugin == $GrimmJSON:
 		return _plugin.CreateCollection(collection)
-		
-	_plugin.CreateCollection(collection)
+
+	return await _plugin.CreateCollection(collection)
 	
 func DeleteCollection(collection):
 	if _plugin == $GrimmJSON:
