@@ -206,8 +206,113 @@ func execute(sql: String) -> int:
 			return ERR_BUSY
 	
 	push_error("[PostgreSQLClient:%d] The frontend is not connected to backend." % [get_instance_id()])
-	
+
 	return ERR_CONNECTION_ERROR
+
+
+## Runs a single SQL statement with bound parameters ($1, $2, ...) using the extended query protocol.
+## Parameter values are sent separately from the SQL text, so they can never be interpreted as SQL.
+## Each value is sent in text format: null becomes SQL NULL, bool becomes "true"/"false",
+## Dictionary/Array are JSON encoded, anything else is converted to its string form.
+## Add casts in the SQL where the type matters (e.g. "$1::jsonb", "$2::numeric").
+## Results arrive through the data_received signal, like execute().
+func execute_params(sql: String, params: Array = []) -> int:
+	if status != Status.STATUS_CONNECTED:
+		push_error("[PostgreSQLClient:%d] The frontend is not connected to backend." % [get_instance_id()])
+		return ERR_CONNECTION_ERROR
+
+	if busy:
+		return ERR_BUSY
+
+	var zero := PackedByteArray([0])
+
+	### Parse (unnamed statement, parameter types inferred by the backend) ###
+	var parse := StreamPeerBuffer.new()
+	parse.big_endian = true
+	parse.put_data(zero)
+	parse.put_data(sql.to_utf8_buffer() + zero)
+	parse.put_16(0)
+
+	### Bind (unnamed portal, all parameters and results in text format) ###
+	var bind := StreamPeerBuffer.new()
+	bind.big_endian = true
+	bind.put_data(zero) # Portal name.
+	bind.put_data(zero) # Statement name.
+	bind.put_16(0) # Parameter format codes: all text.
+	bind.put_16(params.size())
+	for param in params:
+		if param == null:
+			bind.put_32(-1)
+		else:
+			var value := param_to_text(param).to_utf8_buffer()
+			bind.put_32(value.size())
+			bind.put_data(value)
+	bind.put_16(0) # Result format codes: all text.
+
+	### Describe (portal), Execute (no row limit), Sync ###
+	var describe := PackedByteArray(['P'.unicode_at(0), 0])
+
+	var execute_message := StreamPeerBuffer.new()
+	execute_message.big_endian = true
+	execute_message.put_data(zero)
+	execute_message.put_32(0)
+
+	var message := request('P', parse.data_array) \
+		+ request('B', bind.data_array) \
+		+ request('D', describe) \
+		+ request('E', execute_message.data_array) \
+		+ request('S')
+
+	if stream_peer_tls.get_status() == StreamPeerTLS.STATUS_CONNECTED:
+		stream_peer_tls.put_data(message)
+	else:
+		peer.put_data(message)
+
+	busy = true
+
+	return OK
+
+
+## Converts a value to the text form sent for a bound parameter.
+static func param_to_text(value) -> String:
+	match typeof(value):
+		TYPE_BOOL:
+			return "true" if value else "false"
+		TYPE_INT:
+			return str(value)
+		TYPE_FLOAT, TYPE_DICTIONARY, TYPE_ARRAY:
+			return to_json(value)
+		_:
+			return str(value)
+
+
+## JSON encoding that keeps full float precision inside dictionaries and arrays
+## (JSON.stringify only applies full_precision to top-level floats before Godot 4.3).
+## Values JSON can't represent (NaN, infinity) become null; other Godot types become strings.
+static func to_json(value) -> String:
+	match typeof(value):
+		TYPE_NIL:
+			return "null"
+		TYPE_BOOL:
+			return "true" if value else "false"
+		TYPE_INT:
+			return str(value)
+		TYPE_FLOAT:
+			if is_nan(value) or is_inf(value):
+				return "null"
+			return JSON.stringify(value, "", false, true)
+		TYPE_DICTIONARY:
+			var members := PackedStringArray()
+			for key in value:
+				members.append(JSON.stringify(str(key)) + ":" + to_json(value[key]))
+			return "{" + ",".join(members) + "}"
+		TYPE_ARRAY, TYPE_PACKED_INT32_ARRAY, TYPE_PACKED_INT64_ARRAY, TYPE_PACKED_FLOAT32_ARRAY, TYPE_PACKED_FLOAT64_ARRAY, TYPE_PACKED_STRING_ARRAY:
+			var items := PackedStringArray()
+			for item in value:
+				items.append(to_json(item))
+			return "[" + ",".join(items) + "]"
+		_:
+			return JSON.stringify(str(value))
 
 
 # Upgrade the connexion to SSL.
@@ -389,12 +494,12 @@ func request(type_message: String, message := PackedByteArray()) -> PackedByteAr
 	
 	# If the message is StartupMessage...
 	if type_message.is_empty():
-		# Version parsing
-		var protocol_major_version = int(PROTOCOL_VERSION)
-		var protocol_minor_version = protocol_major_version - PROTOCOL_VERSION
-		
-		for char_number in str(protocol_major_version).pad_zeros(2) + str(protocol_minor_version).pad_zeros(2):
-			buffer.put_data(PackedByteArray([char_number.to_int()]))
+		# Protocol version: major and minor as two big-endian 16-bit numbers.
+		# (Built from numbers, not strings: str(0.0) is "0.0" from Godot 4.4 on, which corrupted this header.)
+		var protocol_major_version := int(PROTOCOL_VERSION)
+		var protocol_minor_version := roundi((PROTOCOL_VERSION - protocol_major_version) * 10)
+
+		buffer.put_data(PackedByteArray([0, protocol_major_version, 0, protocol_minor_version]))
 	
 	buffer.put_data(message)
 	
@@ -1639,16 +1744,12 @@ func reponce_parser(fragmented_answer: PackedByteArray):
 				var cursor := 7
 				for _index in postgresql_query_result_instance.number_of_fields_in_a_row:
 					# Get the field name.
-					var field_name := ""
-					
-					for octet in response_buffer.slice(cursor, message_length + 1):
-						field_name += char(octet)
-						
-						# If we get to the end of the chain, we get out of the loop.
-						if not octet:
-							break
-					
-					cursor += len(field_name)
+					# The name is null-terminated UTF-8. The cursor is left on the terminator,
+					# which the offsets below expect.
+					var name_end := response_buffer.find(0, cursor)
+					var field_name := response_buffer.slice(cursor, name_end).get_string_from_utf8()
+
+					cursor = name_end
 					
 					buffer = StreamPeerBuffer.new()
 					
