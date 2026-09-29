@@ -8,15 +8,34 @@
 - Configuration:
 ```gdscript
   $GORM.Configure($GORM/GrimmJSON, {}, {
-    "ExampleCollection":{
-      "example_default_value":0,
-    }
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
   })
 ```
 </details>
 
 &nbsp;&nbsp;<details>
-  <summary>(WIP) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
+  <summary>SQLite Plugin</summary>
+** Requires https://github.com/2shady4u/godot-sqlite
+
+
+  - Configuration:
+```gdscript
+  $GORM.Configure($GORM/SQLite, {}, {
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
+  })
+```
+</details>
+
+&nbsp;&nbsp;<details>
+  <summary>(WIP) PostgreSQL Plugin</summary>
+</details>
+
+&nbsp;&nbsp;<details>
+  <summary>(paused) MongoDBAtlas DataAPI Plugin (https://cloud.mongodb.com/)</summary>
 ** Disclaimer, you have to manage your collections via Atlas as the API restricts this action
 
 ** Disclaimer, this plugin is a WIP and not done yet.
@@ -33,21 +52,17 @@
 ```gdscript
   $GORM.Configure($GORM/MongoDBAtlas,
   {
-        "api_key":"your_api_key",
-    "base_url":"your_base_url",
-    "data_source": "your_data_source",
-    "database": "your_database",
+		"api_key":"your_api_key",
+	"base_url":"your_base_url",
+	"data_source": "your_data_source",
+	"database": "your_database",
   },
   {
-    "ExampleCollection":{
-      "example_default_value":0,
-    }
+	"ExampleCollection":{
+	  "example_default_value":0,
+	}
   })
 ```
-</details>
-
-&nbsp;&nbsp;<details>
-  <summary>(TBD) PostgreSQL Plugin</summary>
 </details>
   
 </details>
